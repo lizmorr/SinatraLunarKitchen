@@ -10,32 +10,14 @@ def db_connection
 end
 
 class Recipe
+  attr_reader :id, :name, :instructions, :description, :ingredients
+
   def initialize(id,name,instructions,description)
     @id = id
     @name = name
     @instructions = instructions
     @description = description
     @ingredients = Ingredient.get(@id)
-  end
-
-  def id
-    @id
-  end
-
-  def name
-    @name
-  end
-
-  def instructions
-    @instructions
-  end
-
-  def description
-    @description
-  end
-
-  def ingredients
-    @ingredients
   end
 
   def self.all
@@ -49,8 +31,8 @@ class Recipe
   end
 
   def self.find(recipe_id)
-    recipe_db = db_connection { |conn| conn.exec "SELECT * FROM recipes
-      WHERE recipes.id=#{recipe_id};"}.to_a
+    recipe_db = db_connection { |conn| conn.exec_params "SELECT * FROM recipes
+      WHERE recipes.id=$1;",[recipe_id]}.to_a
     if recipe_db.length > 0
       recipe = Recipe.new(recipe_db[0]["id"],recipe_db[0]["name"],
         recipe_db[0]["instructions"], recipe_db[0]["description"])
